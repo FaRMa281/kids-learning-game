@@ -318,6 +318,17 @@ button {
   line-height: 1;
   filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.2));
 }
+.island__label {
+  margin-top: 14px;
+  background: var(--white);
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-size: clamp(16px, 2.2vw, 24px);
+  font-weight: 900;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
 /* пальмы и трава колышутся; амплитуда --sway растёт с уровнем шторма (плавно, из JS) */
 .isl__palm {
   animation: palm-sway 2.4s ease-in-out infinite;
