@@ -1,0 +1,10 @@
+# python
+games-backend/venv/
+**/__pycache__/
+*.db
+# node
+kids-learning-game/node_modules/
+kids-learning-game/dist/
+kids-learning-game/dev-dist/
+# local env
+kids-learning-game/.env.lan

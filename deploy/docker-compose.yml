@@ -1,0 +1,23 @@
+# docker compose -f deploy/docker-compose.yml up -d --build   (из папки games/)
+services:
+  games-backend:
+    build: ../games-backend
+    environment:
+      # фронт и API на одном домене через nginx — CORS не нужен, но на всякий случай разрешаем свой домен
+      CORS_ORIGINS: "http://localhost,https://YOUR_DOMAIN"
+    volumes:
+      - games-data:/data
+    restart: unless-stopped
+
+  kids-learning-game:
+    build:
+      context: ..
+      dockerfile: kids-learning-game/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - games-backend
+    restart: unless-stopped
+
+volumes:
+  games-data:
