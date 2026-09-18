@@ -377,6 +377,7 @@ button {
   position: relative;
   z-index: 1;
 }
+.island-screen > .topbar { z-index: 5; } /* шапка (назад/звук/полный экран) всегда над телом урока */
 .island-screen > .mascot--corner { position: absolute; }
 .island-screen > .confetti-layer { position: absolute; }
 .topbar--floating {

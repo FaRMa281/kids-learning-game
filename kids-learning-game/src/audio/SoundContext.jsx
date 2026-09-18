@@ -59,6 +59,7 @@ export function SoundProvider({ children }) {
   const play = useCallback(
     (name, ...args) => {
       if (muted) return
+      unlockAudio() // на всякий случай: если контекст «уснул» (мобильные браузеры), будим внутри жеста
       sfx[name]?.(...args)
     },
     [muted],

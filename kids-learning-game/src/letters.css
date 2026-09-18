@@ -115,7 +115,7 @@
 .prompt {
   position: absolute;
   left: 50%;
-  top: clamp(64px, 12vh, 100px);
+  top: clamp(100px, 15vh, 130px);
   translate: -50% 0; /* не transform: его перезаписывает motion */
   display: flex;
   align-items: center;
@@ -358,7 +358,7 @@
   background: linear-gradient(180deg, #4fa3e8, #a9dcff 70%, #e9f6ff);
 }
 .pier__sun {
-  position: absolute; right: 12%; top: 6%;
+  position: absolute; right: 24%; top: 5%;
   width: 90px; height: 90px; border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #fffbe6, #ffe66d 55%, #ffb703);
   box-shadow: 0 0 60px 20px rgba(255, 220, 120, 0.55);
@@ -494,7 +494,7 @@
 
 /* ---------- компактный экран ---------- */
 @media (max-height: 480px) {
-  .prompt { top: 56px; padding: 6px 12px; gap: 8px; }
+  .prompt { top: 70px; padding: 6px 12px; gap: 8px; }
   .prompt__big { font-size: 30px; }
   .prompt__text { font-size: 14px; }
   .prompt__speak { width: 36px; height: 36px; font-size: 18px; }
@@ -507,3 +507,12 @@
   .pearls { bottom: 62px; }
   .pager__arrow { width: 40px; height: 54px; font-size: 32px; }
 }
+
+/* шапка урока (назад, точки раундов, звук, полный экран) — поверх сцены */
+.island-screen.lesson--letters > .topbar {
+  position: relative;
+  z-index: 12;
+  pointer-events: none; /* сама полоса не перехватывает тапы по сцене… */
+}
+.island-screen.lesson--letters > .topbar > * { pointer-events: auto; } /* …а кнопки — да */
+.lesson--letters .progress-dots .dot { background: rgba(255, 255, 255, 0.85); }
