@@ -1,0 +1,509 @@
+/* ======================================================================
+   Остров букв: пейджер экранов уровней, три игровые сцены, токены, эффекты
+   ====================================================================== */
+
+/* ---------- пейджер (2-й экран) ---------- */
+.island-screen--paged .pager {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  z-index: 1;
+  padding-bottom: 120px;
+}
+.pager__track {
+  display: flex;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+}
+.pager__track:active { cursor: grabbing; }
+.pager__page {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 clamp(60px, 8vw, 110px);
+  box-sizing: border-box;
+}
+.pager__head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 8px;
+}
+.pager__title {
+  font-size: clamp(18px, 2.6vw, 26px);
+  font-weight: 900;
+  color: var(--ink);
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.7);
+}
+.pager__sub { font-size: clamp(13px, 1.8vw, 17px); opacity: 0.7; }
+.level-grid--6 {
+  grid-template-columns: repeat(3, minmax(150px, 250px));
+  gap: clamp(10px, 2vw, 22px);
+  padding: 6px 0 0;
+  margin: 0;
+}
+.level-grid--6 .level-card { min-height: 150px; }
+.level-grid--6 .level-card__art { font-size: clamp(30px, 4vw, 46px); padding-top: 12px; }
+.level-grid--6 .level-card__title { font-size: clamp(14px, 1.9vw, 19px); }
+.level-grid--6 .level-card__sub { font-size: clamp(12px, 1.5vw, 15px); }
+.level-grid--6 .stars svg { width: 24px; height: 24px; }
+
+/* 3D-стрелки */
+.pager__arrow {
+  position: absolute;
+  top: 45%;
+  width: clamp(48px, 6vw, 72px);
+  height: clamp(60px, 8vw, 90px);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffe08a, #f6b73c 60%, #d98a12);
+  box-shadow: 0 8px 0 #9a5f0a, 0 12px 18px rgba(0, 0, 0, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.6);
+  color: #5a3305;
+  font-size: clamp(40px, 5vw, 60px);
+  font-weight: 900;
+  line-height: 1;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+  z-index: 5;
+}
+.pager__arrow--left { left: 8px; }
+.pager__arrow--right { right: 8px; }
+.pager__arrow:active { transform: translateY(6px); box-shadow: 0 2px 0 #9a5f0a, 0 6px 10px rgba(0, 0, 0, 0.25); }
+.pager__arrow:disabled { opacity: 0.25; pointer-events: none; }
+.pager__arrow span { display: block; margin-top: -6px; }
+
+/* жемчужины пагинации */
+.pearls {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(88px, 14vh, 120px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  z-index: 5;
+}
+.pearl {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #e6ecf5 45%, #b8c3d3);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18), inset 0 -2px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s;
+}
+.pearl--on {
+  transform: scale(1.5);
+  background: radial-gradient(circle at 35% 30%, #fff, #ffe8a3 45%, #f2b134);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18), 0 0 14px rgba(255, 200, 60, 0.8);
+}
+
+/* ---------- сцена (3-й экран) ---------- */
+.lesson--letters .lesson__body,
+.play {
+  position: absolute;
+  inset: 0;
+}
+.play { z-index: 1; }
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: clip; /* не hidden: фокус на кнопке не должен прокручивать сцену */
+  border-radius: 0;
+}
+
+/* задание */
+.prompt {
+  position: absolute;
+  left: 50%;
+  top: clamp(64px, 12vh, 100px);
+  translate: -50% 0; /* не transform: его перезаписывает motion */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 26px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.12), 0 14px 24px rgba(0, 0, 0, 0.15);
+  z-index: 6;
+  max-width: 82vw;
+}
+.prompt__pic { font-size: clamp(36px, 5vw, 56px); line-height: 1; }
+.prompt__big {
+  font-size: clamp(34px, 5vw, 58px);
+  font-weight: 900;
+  color: var(--blue);
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+.prompt__big--ghost { color: rgba(25, 130, 196, 0.25); -webkit-text-stroke: 2px var(--blue); }
+.prompt__text { font-size: clamp(16px, 2.2vw, 24px); font-weight: 900; }
+.prompt__speak {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--yellow);
+  font-size: 24px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+}
+.prompt__speak:active { transform: translateY(3px); box-shadow: none; }
+.prompt__count { font-size: 20px; font-weight: 900; color: var(--green); }
+
+/* токены */
+.tokens { position: absolute; inset: 0; }
+.tok-wrap {
+  position: absolute;
+  translate: -50% -50%;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.tok-wrap--gone { opacity: 0; pointer-events: none; transform: scale(0.4); }
+.tok-wrap--shake { animation: tok-shake 0.45s; }
+.tok-anchor { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+@keyframes tok-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px) rotate(-4deg); }
+  75% { transform: translateX(10px) rotate(4deg); }
+}
+.tok {
+  position: relative;
+  width: calc(var(--tap) * 1.1 * var(--size, 1));
+  height: calc(var(--tap) * 1.1 * var(--size, 1));
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: calc(var(--tap) * 0.5 * var(--size, 1));
+  font-weight: 900;
+  color: var(--ink);
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.25));
+}
+.tok:active { cursor: grabbing; }
+.tok--float { animation: tok-float 3.6s ease-in-out infinite; animation-delay: var(--delay, 0s); }
+@keyframes tok-float {
+  0%, 100% { translate: 0 0; rotate: -2deg; }
+  50% { translate: 0 -8px; rotate: 2deg; }
+}
+.tok__text, .tok__piece { position: relative; z-index: 1; line-height: 1; }
+.tok__pic { position: absolute; right: -6px; bottom: -6px; font-size: 0.5em; }
+.tok--syllable { font-size: calc(var(--tap) * 0.38); }
+.tok--piece .tok__piece { font-size: 1.35em; }
+
+/* спасательный круг (причал) */
+.tok--ring {
+  background:
+    radial-gradient(circle, #fff 0 38%, transparent 39%),
+    conic-gradient(#ff595e 0 25%, #fff 0 50%, #ff595e 0 75%, #fff 0);
+  box-shadow: inset 0 0 0 4px #b71c1c, inset 0 0 0 calc(var(--tap) * 0.3) rgba(0, 0, 0, 0);
+}
+.tok--ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.18), inset 0 6px 8px rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+.tok--ring-red { box-shadow: inset 0 0 0 4px #b71c1c; }
+.tok--ring-blue {
+  background:
+    radial-gradient(circle, #fff 0 38%, transparent 39%),
+    conic-gradient(#1982c4 0 25%, #fff 0 50%, #1982c4 0 75%, #fff 0);
+  box-shadow: inset 0 0 0 4px #0b4f7a;
+}
+.tok--digit.tok--ring { background: radial-gradient(circle, #fff 0 38%, transparent 39%), conic-gradient(#8ac926 0 25%, #fff 0 50%, #8ac926 0 75%, #fff 0); }
+
+/* мыльный пузырь (сундук) */
+.tok--bubble {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95) 0 12%, rgba(255, 255, 255, 0.15) 30%, rgba(180, 230, 255, 0.35) 70%, rgba(120, 200, 255, 0.6) 100%);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.8), inset -8px -10px 18px rgba(120, 90, 255, 0.35), 0 8px 12px rgba(0, 0, 0, 0.15);
+  color: #4a148c;
+}
+.tok--bubble::before {
+  content: '';
+  position: absolute;
+  left: 18%;
+  top: 14%;
+  width: 24%;
+  height: 14%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  transform: rotate(-30deg);
+}
+
+/* ракушка / самоцвет (дно) */
+.tok--shell {
+  border-radius: 46% 46% 50% 50% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 40% 25%, #fff6e0, #ffd6a5 40%, #f3a683 100%);
+  box-shadow: inset 0 -8px 10px rgba(0, 0, 0, 0.15), inset 0 0 0 3px rgba(120, 60, 20, 0.35);
+  color: #5a2d0c;
+}
+.tok--shell::before {
+  content: '';
+  position: absolute;
+  inset: 8% 10% 40%;
+  border-radius: 50% 50% 0 0;
+  background: repeating-linear-gradient(90deg, rgba(120, 60, 20, 0.12) 0 3px, transparent 3px 9px);
+  pointer-events: none;
+}
+.tok--shell.tok--syllable, .tok--shell.tok--digit {
+  border-radius: 30%;
+  background: radial-gradient(circle at 35% 25%, #d6f3ff, #6fd3ff 40%, #1982c4 100%);
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* пузыри-ловля: всплывают снизу вверх */
+.tok--rise {
+  position: absolute;
+  left: var(--x);
+  bottom: -14%;
+  translate: -50% 0;
+  animation: rise var(--dur, 10s) linear infinite, tok-wobble 2.2s ease-in-out infinite;
+  animation-delay: var(--delay, 0s), 0s;
+  will-change: transform;
+}
+@keyframes rise {
+  from { transform: translateY(0); }
+  to { transform: translateY(-130vh); }
+}
+@keyframes tok-wobble {
+  0%, 100% { margin-left: 0; }
+  50% { margin-left: 14px; }
+}
+.tok--gone.tok--rise { animation: bubble-pop 0.35s forwards; }
+@keyframes bubble-pop {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+.tok--shake { animation: tok-shake 0.45s; }
+
+/* слот */
+.slot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  z-index: 4;
+  transition: transform 0.25s, filter 0.25s;
+}
+.slot--yay { animation: slot-yay 0.7s ease-out; filter: drop-shadow(0 0 18px #ffd60a); }
+@keyframes slot-yay {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18) rotate(-4deg); }
+  100% { transform: scale(1); }
+}
+.slot__placeholder {
+  font-size: 40px;
+  font-weight: 900;
+  color: rgba(35, 48, 71, 0.35);
+  animation: slot-blink 1.4s ease-in-out infinite;
+}
+@keyframes slot-blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+.slot__letters { display: flex; gap: 4px; font-size: 30px; font-weight: 900; color: var(--ink); }
+.slot__cells { display: flex; gap: 6px; }
+.slot__cell {
+  width: 44px;
+  height: 52px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 3px dashed rgba(35, 48, 71, 0.4);
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.slot__cell--on { border-style: solid; border-color: var(--green); background: #e9f7d3; animation: cell-pop 0.35s; }
+@keyframes cell-pop { 0% { transform: scale(0.6); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+/* эффекты */
+.fx { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
+.fx__fly {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+.fx__star { position: absolute; left: 0; top: 0; translate: -50% -50%; font-size: 26px; }
+.fx__spark, .fx__splash {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  translate: -50% -50%;
+  animation: spark 0.6s ease-out forwards;
+}
+.fx__spark { background: radial-gradient(circle, #fff, #ffd60a); box-shadow: 0 0 8px #ffd60a; }
+.fx__splash { background: radial-gradient(circle, #fff, #8ecae6); box-shadow: 0 0 8px #bde0fe; }
+@keyframes spark {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.2) translateY(18px); opacity: 0; }
+}
+
+/* ====================== СЦЕНА 1: ПРИЧАЛ ====================== */
+.stage--pier { background: #2a8fd6; }
+.pier__sky {
+  position: absolute; inset: 0 0 auto 0; height: 46%;
+  background: linear-gradient(180deg, #4fa3e8, #a9dcff 70%, #e9f6ff);
+}
+.pier__sun {
+  position: absolute; right: 12%; top: 6%;
+  width: 90px; height: 90px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fffbe6, #ffe66d 55%, #ffb703);
+  box-shadow: 0 0 60px 20px rgba(255, 220, 120, 0.55);
+}
+.pier__cloud { position: absolute; font-size: 64px; opacity: 0.95; animation: drift 60s linear infinite; }
+.pier__cloud--1 { top: 4%; left: -10%; }
+.pier__cloud--2 { top: 16%; left: -30%; animation-duration: 85s; font-size: 48px; }
+.pier__sea {
+  position: absolute; inset: 46% 0 0 0;
+  background: linear-gradient(180deg, #3fb0f0, #1c7fc4 60%, #155f9e);
+  overflow: hidden;
+}
+.wave {
+  position: absolute; left: -10%; width: 220%; height: 60px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.35) 0 40%, transparent 41%) 0 0 / 160px 60px repeat-x;
+  animation: wave-move 9s linear infinite;
+  opacity: 0.8;
+}
+.wave--a { top: 0; }
+.wave--b { top: 30%; animation-duration: 12s; animation-direction: reverse; background-size: 220px 60px; }
+.wave--c { top: 62%; animation-duration: 7s; background-size: 120px 60px; opacity: 0.5; }
+@keyframes wave-move { from { transform: translateX(0); } to { transform: translateX(-160px); } }
+.pier__dock {
+  position: absolute; right: 0; bottom: 0; width: 42%; height: 26%;
+  display: flex; flex-direction: column; justify-content: flex-start; gap: 4px;
+  padding-top: 10px;
+  background: linear-gradient(180deg, #b07a3c, #7d4a1f);
+  border-radius: 24px 0 0 0;
+  box-shadow: 0 -8px 0 #c98a4b, 0 -14px 18px rgba(0, 0, 0, 0.25);
+}
+.pier__plank { height: 10px; margin: 0 8px; border-radius: 4px; background: rgba(74, 43, 16, 0.35); }
+.pier__pole { position: absolute; bottom: 0; width: 18px; height: 150%; background: linear-gradient(90deg, #6b3f18, #a86a33, #6b3f18); border-radius: 8px; }
+.pier__pole--1 { left: 6%; }
+.pier__pole--2 { left: 60%; }
+
+.boat {
+  position: absolute; right: 6%; bottom: 18%; width: clamp(180px, 26vw, 300px);
+  animation: boat-bob 3.4s ease-in-out infinite;
+  z-index: 3;
+}
+.boat__svg { width: 100%; height: auto; filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.3)); }
+@keyframes boat-bob { 0%, 100% { transform: translateY(0) rotate(-1.2deg); } 50% { transform: translateY(-8px) rotate(1.2deg); } }
+.boat--yay { animation: boat-yay 0.9s ease-in-out 2; }
+@keyframes boat-yay { 0%, 100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-22px) rotate(-5deg); } 60% { transform: translateY(-10px) rotate(4deg); } }
+.boat__smoke { position: absolute; left: 71%; top: -6%; }
+.boat__smoke i {
+  position: absolute; width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  opacity: 0;
+}
+.boat--yay .boat__smoke i { animation: smoke 1.2s ease-out infinite; }
+.boat--yay .boat__smoke i:nth-child(2) { animation-delay: 0.4s; }
+.boat--yay .boat__smoke i:nth-child(3) { animation-delay: 0.8s; }
+@keyframes smoke { 0% { transform: translate(0, 0) scale(0.6); opacity: 0.9; } 100% { transform: translate(-30px, -60px) scale(2.2); opacity: 0; } }
+.slot--flag {
+  left: 12%; top: -34%;
+  min-width: 70px; min-height: 56px;
+  padding: 4px 10px;
+  background: linear-gradient(180deg, #fff, #f1f5f9);
+  border: 4px solid #ffb703;
+  border-radius: 14px 14px 14px 4px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+}
+.slot--flag::after { content: ''; position: absolute; left: -12px; bottom: -6px; border: 8px solid transparent; border-right-color: #ffb703; border-top-color: #ffb703; }
+
+/* ====================== СЦЕНА 2: СУНДУК ====================== */
+.stage--chest { background: #f6d58a; }
+.beach__sky { position: absolute; inset: 0 0 auto 0; height: 32%; background: linear-gradient(180deg, #4fa3e8, #bde0fe); }
+.beach__sea { position: absolute; left: 0; right: 0; top: 30%; height: 14%; background: linear-gradient(180deg, #2fa8e8, #8fd3f7); border-radius: 0 0 50% 50% / 0 0 40px 40px; }
+.beach__sand { position: absolute; inset: 40% 0 0 0; background: linear-gradient(180deg, #fbe7b0, #e9c074 60%, #d9a95a); }
+.beach__sand::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0 1px, transparent 2px) 0 0 / 22px 22px; opacity: 0.6; }
+.beach__palm { position: absolute; left: 2%; bottom: 8%; width: clamp(90px, 14vw, 160px); height: auto; overflow: visible; }
+.beach__leaves { transform-origin: 0 0; animation: palm-sway 3s ease-in-out infinite; }
+.chest { position: absolute; left: 50%; bottom: 6%; translate: -50% 0; width: clamp(120px, 18vw, 200px); z-index: 2; }
+.chest__svg { width: 100%; height: auto; filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3)); }
+.chest__lid { transform-origin: 80px 52px; animation: lid 4s ease-in-out infinite; }
+@keyframes lid { 0%, 100% { transform: rotate(-38deg); } 50% { transform: rotate(-30deg); } }
+.chest__glow { position: absolute; left: 20%; right: 20%; top: -10%; height: 50%; background: radial-gradient(ellipse, rgba(255, 220, 100, 0.8), rgba(255, 220, 100, 0)); animation: glow 2s ease-in-out infinite; pointer-events: none; }
+@keyframes glow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+.chest--yay .chest__lid { animation: lid-open 0.6s forwards; }
+@keyframes lid-open { to { transform: rotate(-70deg); } }
+.slot--basket { right: 6%; bottom: 8%; width: clamp(130px, 18vw, 200px); }
+.basket__svg { width: 100%; height: auto; filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3)); }
+.slot__inner { position: absolute; left: 12%; right: 12%; top: 34%; display: grid; place-items: center; }
+
+/* ====================== СЦЕНА 3: ЗАТОНУВШИЙ ГОРОД ====================== */
+.stage--sunken { background: #0b3d6b; }
+.sea__deep { position: absolute; inset: 0; background: linear-gradient(180deg, #1c7fc4 0%, #0f5a95 40%, #083a63 100%); }
+.caustic {
+  position: absolute; inset: -20%;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(255, 255, 255, 0.18) 0 6%, transparent 12%),
+    radial-gradient(ellipse at 70% 20%, rgba(255, 255, 255, 0.14) 0 8%, transparent 14%),
+    radial-gradient(ellipse at 50% 70%, rgba(255, 255, 255, 0.12) 0 7%, transparent 12%),
+    radial-gradient(ellipse at 85% 60%, rgba(255, 255, 255, 0.16) 0 5%, transparent 10%);
+  background-size: 60% 60%;
+  mix-blend-mode: screen;
+  animation: caustic 14s ease-in-out infinite;
+}
+.caustic--2 { animation-duration: 19s; animation-direction: reverse; background-size: 45% 45%; opacity: 0.7; }
+@keyframes caustic { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(6%, 4%) scale(1.08); } }
+.sea__rays { position: absolute; inset: 0; background: repeating-linear-gradient(100deg, rgba(255, 255, 255, 0) 0 60px, rgba(255, 255, 255, 0.07) 60px 90px); mix-blend-mode: screen; animation: rays 12s ease-in-out infinite; }
+@keyframes rays { 0%, 100% { opacity: 0.6; transform: translateX(0); } 50% { opacity: 1; transform: translateX(30px); } }
+.fish { position: absolute; font-size: 40px; animation: swim 22s linear infinite; }
+.fish--1 { top: 22%; animation-duration: 26s; }
+.fish--2 { top: 38%; animation-duration: 20s; animation-delay: -8s; font-size: 30px; }
+.fish--3 { top: 12%; animation-duration: 32s; animation-delay: -15s; }
+.fish--4 { top: 50%; animation-duration: 40s; animation-delay: -4s; font-size: 48px; }
+@keyframes swim { from { left: -12%; } to { left: 112%; } }
+.bubbleUp {
+  position: absolute; bottom: -20px; left: calc(var(--i) * 8.5%);
+  width: calc(6px + var(--i) * 1px); height: calc(6px + var(--i) * 1px);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  animation: bubbleUp 8s linear infinite;
+  animation-delay: calc(var(--i) * -0.9s);
+}
+@keyframes bubbleUp { to { transform: translateY(-110vh) translateX(20px); opacity: 0; } }
+.seabed { position: absolute; left: 0; right: 0; bottom: 0; height: 22%; background: linear-gradient(180deg, #4a6a5a, #2f4a3f); border-radius: 50% 50% 0 0 / 30px 30px 0 0; }
+.weed { position: absolute; bottom: 60%; left: calc(4% + var(--i) * 14%); width: 40px; height: 160px; transform-origin: 50% 100%; animation: weed-sway 3.5s ease-in-out infinite; animation-delay: calc(var(--i) * -0.6s); opacity: 0.9; }
+@keyframes weed-sway { 0%, 100% { transform: rotate(-5deg) skewX(-3deg); } 50% { transform: rotate(6deg) skewX(4deg); } }
+.ruin { position: absolute; bottom: 70%; width: 90px; height: 120px; background: linear-gradient(180deg, #9aa5b1, #5f6b78); border-radius: 12px 12px 4px 4px; opacity: 0.85; }
+.ruin--1 { left: 18%; }
+.ruin--2 { right: 22%; height: 80px; width: 70px; }
+.ruin::before { content: ''; position: absolute; left: 10px; right: 10px; top: 14px; height: 14px; background: rgba(0, 0, 0, 0.25); border-radius: 4px; }
+.slot--treasure { right: 5%; bottom: 10%; width: clamp(130px, 18vw, 200px); filter: drop-shadow(0 0 14px rgba(255, 214, 10, 0.5)); }
+.slot--treasure svg { width: 100%; height: auto; }
+.slot__inner--treasure { top: 28%; }
+
+/* лабиринт: дорожка катера */
+.path { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+
+/* ---------- компактный экран ---------- */
+@media (max-height: 480px) {
+  .prompt { top: 56px; padding: 6px 12px; gap: 8px; }
+  .prompt__big { font-size: 30px; }
+  .prompt__text { font-size: 14px; }
+  .prompt__speak { width: 36px; height: 36px; font-size: 18px; }
+  .boat { width: 150px; bottom: 16%; }
+  .pier__dock { height: 22%; }
+  .pager__page { padding: 0 52px; }
+  .level-grid--6 { gap: 8px; }
+  .level-grid--6 .level-card { min-height: 96px; }
+  .level-grid--6 .level-card__art { font-size: 22px; padding-top: 6px; }
+  .pearls { bottom: 62px; }
+  .pager__arrow { width: 40px; height: 54px; font-size: 32px; }
+}

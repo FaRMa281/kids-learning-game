@@ -8,6 +8,7 @@ import Confetti from '../../components/Confetti'
 import FullscreenButton from '../../components/FullscreenButton'
 import LevelBackdrop from '../../components/LevelBackdrop'
 import Mascot from '../../components/Mascot'
+import PagedLevels from '../../components/PagedLevels'
 import SoundButton from '../../components/SoundButton'
 import Stars from '../../components/Stars'
 import { UI } from './phrases'
@@ -29,77 +30,88 @@ function themeStyle(theme) {
   return { '--accent': theme.accent, '--bg-a': a, '--bg-b': b, '--bg-c': c }
 }
 
-// ---------------------------------------------------------------- выбор уровня
-function LevelSelect({ modeId, title, levels, summary, onPick, onBack, theme }) {
+// ---------------------------------------------------------------- карточка уровня
+function LevelCard({ lv, index, stars, locked, levels, onPick, bubble, tilt, active = true }) {
   const { play, say } = useSound()
+  return (
+    <motion.button
+      key={lv.id}
+      className={`level-card ${locked ? 'level-card--locked' : ''} ${stars === 3 ? 'level-card--gold' : ''}`}
+      style={tilt ? { rotate: tilt } : undefined}
+      initial={{ opacity: 0, y: 60, scale: 0.8 }}
+      animate={active ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0.6, y: 0, scale: 0.94 }}
+      transition={{ delay: active ? 0.08 + index * 0.08 : 0, type: 'spring', stiffness: 260, damping: 16 }}
+      whileHover={locked ? { scale: 1.02 } : { scale: 1.05, y: -8 }}
+      whileTap={locked ? { x: [0, -8, 8, -6, 6, 0] } : { scale: 0.96, y: 2 }}
+      onHoverStart={() => {
+        if (locked) return
+        play('click')
+        bubble('talk', lv.hint ?? `${lv.title}: ${lv.sub}`)
+      }}
+      onPointerDown={() => {
+        if (locked) {
+          play('wrong')
+          const req = levels.find((l) => l.id === lv.requires)
+          bubble('oops', `Сначала пройди «${req?.title ?? ''} — ${req?.sub ?? ''}»`)
+        } else {
+          play('pop')
+          bubble('happy', lv.hint ?? lv.title)
+          say(lv.hint ?? lv.title, lv.lang ?? 'ru')
+        }
+      }}
+      onClick={() => !locked && setTimeout(() => onPick(lv), 180)}
+      aria-disabled={locked}
+    >
+      <span className="level-card__art" aria-hidden>
+        {lv.art ?? lv.icon}
+      </span>
+      <span className="level-card__title">{lv.title}</span>
+      <span className="level-card__sub">{lv.sub}</span>
+      <Stars filled={stars} size={34} />
+      {locked && (
+        <span className="level-card__lock" aria-hidden>
+          <svg viewBox="0 0 64 80" width="100%" height="100%">
+            <path d="M18 34 V24 a14 14 0 0 1 28 0 v10" fill="none" stroke="#7a5a1e" strokeWidth="7" strokeLinecap="round" />
+            <path d="M18 34 V24 a14 14 0 0 1 28 0 v10" fill="none" stroke="#ffd166" strokeWidth="4" strokeLinecap="round" />
+            <rect x="8" y="34" width="48" height="40" rx="9" fill="#f5a623" stroke="#7a5a1e" strokeWidth="4" />
+            <rect x="12" y="38" width="40" height="14" rx="6" fill="rgba(255,255,255,0.35)" />
+            <circle cx="32" cy="55" r="5" fill="#7a5a1e" />
+            <rect x="30" y="55" width="4" height="10" rx="2" fill="#7a5a1e" />
+          </svg>
+        </span>
+      )}
+    </motion.button>
+  )
+}
+
+// ---------------------------------------------------------------- выбор уровня
+function LevelSelect({ modeId, title, levels, pages, summary, onPick, onBack, theme }) {
   const best = (id) => summary.find((s) => s.mode === modeId && s.level === id)?.best ?? 0
   // уровень заблокирован, пока на требуемом (lv.requires) нет хотя бы одной звезды
   const locked = (lv) => Boolean(lv.requires) && best(lv.requires) < 1
   const [mascot, setMascot] = useState({ mood: 'talk', bump: 0, text: theme?.hello ?? UI.ru.pickLevel })
   const bubble = (mood, text) => setMascot((m) => ({ mood, bump: m.bump + 1, text }))
+  const card = (lv, i, tilt, active) => (
+    <LevelCard key={lv.id} lv={lv} index={i} stars={best(lv.id)} locked={locked(lv)} levels={levels} onPick={onPick} bubble={bubble} tilt={tilt} active={active} />
+  )
 
   return (
-    <div className="screen island-screen island-screen--levels" style={themeStyle(theme)}>
+    <div className={`screen island-screen island-screen--levels ${pages ? 'island-screen--paged' : ''}`} style={themeStyle(theme)}>
       {theme && <LevelBackdrop theme={theme} />}
       <header className="topbar">
         <BackButton onClick={onBack} />
         <h1 className="title">{title}</h1>
         <TopActions />
       </header>
-      <div className="level-grid">
-        {levels.map((lv, i) => {
-          const isLocked = locked(lv)
-          const stars = best(lv.id)
-          return (
-            <motion.button
-              key={lv.id}
-              className={`level-card ${isLocked ? 'level-card--locked' : ''} ${stars === 3 ? 'level-card--gold' : ''}`}
-              initial={{ opacity: 0, y: 60, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.1 + i * 0.1, type: 'spring', stiffness: 260, damping: 16 }}
-              whileHover={isLocked ? { scale: 1.02 } : { scale: 1.05, y: -8 }}
-              whileTap={isLocked ? { x: [0, -8, 8, -6, 6, 0] } : { scale: 0.96, y: 2 }}
-              onHoverStart={() => {
-                if (isLocked) return
-                play('click')
-                bubble('talk', lv.hint ?? `${lv.title}: ${lv.sub}`)
-              }}
-              onPointerDown={() => {
-                if (isLocked) {
-                  play('wrong')
-                  const req = levels.find((l) => l.id === lv.requires)
-                  bubble('oops', `Сначала пройди «${req?.title ?? ''} — ${req?.sub ?? ''}»`)
-                } else {
-                  play('pop')
-                  bubble('happy', lv.hint ?? lv.title)
-                  say(lv.hint ?? lv.title, lv.lang ?? 'ru')
-                }
-              }}
-              onClick={() => !isLocked && setTimeout(() => onPick(lv), 180)}
-              aria-disabled={isLocked}
-            >
-              <span className="level-card__art" aria-hidden>
-                {lv.art ?? lv.icon}
-              </span>
-              <span className="level-card__title">{lv.title}</span>
-              <span className="level-card__sub">{lv.sub}</span>
-              <Stars filled={stars} size={34} />
-              {isLocked && (
-                <span className="level-card__lock" aria-hidden>
-                  <svg viewBox="0 0 64 80" width="100%" height="100%">
-                    <path d="M18 34 V24 a14 14 0 0 1 28 0 v10" fill="none" stroke="#7a5a1e" strokeWidth="7" strokeLinecap="round" />
-                    <path d="M18 34 V24 a14 14 0 0 1 28 0 v10" fill="none" stroke="#ffd166" strokeWidth="4" strokeLinecap="round" />
-                    <rect x="8" y="34" width="48" height="40" rx="9" fill="#f5a623" stroke="#7a5a1e" strokeWidth="4" />
-                    <rect x="12" y="38" width="40" height="14" rx="6" fill="rgba(255,255,255,0.35)" />
-                    <circle cx="32" cy="55" r="5" fill="#7a5a1e" />
-                    <rect x="30" y="55" width="4" height="10" rx="2" fill="#7a5a1e" />
-                  </svg>
-                </span>
-              )}
-            </motion.button>
-          )
-        })}
-      </div>
+      {pages ? (
+        <PagedLevels
+          pages={pages}
+          renderCard={card}
+          onPageChange={(i) => bubble('talk', pages[i].hello ?? `${pages[i].title}: ${pages[i].sub}`)}
+        />
+      ) : (
+        <div className="level-grid">{levels.map((lv, i) => card(lv, i, null, true))}</div>
+      )}
       <Mascot mood={mascot.mood} bump={mascot.bump} text={mascot.text} className="mascot--corner" />
     </div>
   )
@@ -201,7 +213,7 @@ export function OptionButton({ id, isCorrect, lesson, children, className = '', 
 }
 
 // ---------------------------------------------------------------- остров: уровни → урок → результат
-export default function IslandShell({ modeId, title, levels, Lesson, summary, onBack, onProgressSaved, island }) {
+export default function IslandShell({ modeId, title, levels, pages, Lesson, summary, onBack, onProgressSaved, island }) {
   const theme = island?.theme
   const [phase, setPhase] = useState('levels')
   const [level, setLevel] = useState(null)
@@ -221,6 +233,7 @@ export default function IslandShell({ modeId, title, levels, Lesson, summary, on
         modeId={modeId}
         title={title}
         levels={levels}
+        pages={pages}
         summary={summary}
         theme={theme}
         onBack={onBack}

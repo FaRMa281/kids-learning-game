@@ -168,6 +168,33 @@ export const sfx = {
     const t = getCtx().currentTime
     note(N.G5 * (1 + i * 0.12), t, 0.35, { type: 'triangle', gain: 0.3 })
   },
+  horn() {
+    // победный гудок катера: две ноты, «квакающий» тембр
+    const t = getCtx().currentTime
+    note(220, t, 0.35, { type: 'sawtooth', gain: 0.12, attack: 0.03, release: 0.08 })
+    note(277, t + 0.3, 0.5, { type: 'sawtooth', gain: 0.14, attack: 0.03, release: 0.15 })
+    note(440, t + 0.3, 0.5, { type: 'square', gain: 0.03, attack: 0.03, release: 0.15 })
+  },
+  chime() {
+    // волшебный перезвон (сундук / сокровища)
+    const t = getCtx().currentTime
+    ;[N.E5, N.G5, N.C5 * 2, N.E5 * 2].forEach((f, i) => note(f, t + i * 0.07, 0.5, { type: 'sine', gain: 0.22, attack: 0.01, release: 0.3 }))
+  },
+  bubble() {
+    // лопнувший пузырь: короткий «блуп» с подъёмом
+    const c = getCtx()
+    const osc = c.createOscillator()
+    const g = c.createGain()
+    const t = c.currentTime
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(300, t)
+    osc.frequency.exponentialRampToValueAtTime(900, t + 0.09)
+    g.gain.setValueAtTime(0.25, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.14)
+    osc.connect(g).connect(masterGain)
+    osc.start(t)
+    osc.stop(t + 0.15)
+  },
   wind() {
     // порыв ветра от вентилятора: шум, нарастает и стихает, фильтр «открывается»
     const c = getCtx()

@@ -44,7 +44,13 @@ src/
       useLesson.js        механика раунда: answer/correct/wrong, маскот, конфетти, звёзды
       useRoundState.js    состояние, сбрасывающееся при смене раунда
       phrases.js          общие реплики (ru/en), shuffle/pick/range
-    letters/              буквы RU/EN × «найди картинку» / «найди букву»
+    letters/              ОСТРОВ БУКВ: modes.js — 18 режимов на 3 экранах (PAGES) + генераторы раундов
+                          (единая модель: mech pick/collect/sequence/catch, prompt, tokens, hint);
+                          play/LettersPlay.jsx — игровой процесс, play/Token.jsx — drag&drop-токен
+                          (захват/след/пружина назад), play/scenes.jsx — сцены «Причал» (катер, флаг-слот,
+                          спасательные круги), «Сундук» (пузыри, корзина), «Затонувший город» (каустика,
+                          рыбки, ракушки, сундук). Стили — src/letters.css. Экран уровней — PagedLevels
+                          (свайп, 3D-стрелки, жемчужины)
     numbers/              счёт до 5 / до 10, сложение до 5 / до 10
     colors/               учим цвета (плашки) / найди все предметы цвета, RU/EN
     pictures/             найди пару (3 / 6 пар), послушай и найди (3 / 6 вариантов)
